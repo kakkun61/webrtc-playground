@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>WebRTC Video Chat</title>
+    </head>
+    <body>
+        <form id="loginForm" style="display: none;">
+            <div>
+                <label for="userName">User Name: </label>
+                <input type="text" id ="userName">
+            </div>
+            <button id="submit">Log-in</button>
+        </form>
+        <ul id="peers" style="display: none;"></ul>
+        <div>
+            <span id="localStream"></span>
+            <span id="remoteStream"></span>
+        </div>
+        <button id="bye" style="display: none;">Bye</button>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="./signaling.js"></script>
+    </body>
+</html>

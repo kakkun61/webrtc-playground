@@ -8,8 +8,8 @@
         <button id='start'>Start</button>
         <script>
             navigator.getUserMedia = navigator.getUserMedia ||
-            navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia;
+                navigator.webkitGetUserMedia ||
+                navigator.mozGetUserMedia;
             document.getElementById('start').addEventListener('click', function(event) {
                 navigator.getUserMedia(
                     {

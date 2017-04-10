@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>WebRTC Playground</title>
+    </head>
+    <body>
+        <button id='start'>Start</button>
+        <script>
+            navigator.getUserMedia = navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia;
+            document.getElementById('start').addEventListener('click', function(event) {
+                navigator.getUserMedia(
+                    {
+                        video: true,
+                        audio: true
+                    },
+                    function(mediaStream) {
+                        var mediaElement = document.createElement('video');
+                        mediaElement.src = window.URL.createObjectURL(mediaStream);
+                        mediaElement.autoplay = true;
+                        document.body.appendChild(mediaElement);
+                    },
+                    function(error) {
+                        console.log(error);
+                        alert('Cannot use devices.');
+                    }
+                )
+            });
+            event.preventDefault();
+        </script>
+    </body>
+</html>

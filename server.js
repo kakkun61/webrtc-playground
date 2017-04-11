@@ -17,6 +17,7 @@ io.on('connection', function(socket) {
                 userName: data.userName,
                 joined: new Date()
             };
+            console.log('emit "joined"');
             socket.emit('joined', true);
             updateMembers();
         }
@@ -40,5 +41,6 @@ function updateMembers() {
     peerList = peerList.sort(function (a, b) {
         return a.joined > b.joined;
     });
+    console.log('emit "update peers"');
     io.emit('update peers', peerList);
 }

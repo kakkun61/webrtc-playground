@@ -16,7 +16,7 @@ var peerConnection;
 var remoteStreamWrapper = document.getElementById('remoteStream');
 
 loginForm.addEventListener('submit', function(event) {
-    console.log('submit login form');
+    console.log('try to submit login form');
     var userName = document.getElementById('userName').value;
     if (userName) {
         navigator.getUserMedia(
@@ -25,11 +25,13 @@ loginForm.addEventListener('submit', function(event) {
                 video: true
             },
             function(mediaStream) {
+                console.log('success to get user media');
                 var video = document.createElement('video');
                 video.src = window.URL.createObjectURL(mediaStream);
                 video.autoplay = true;
                 document.getElementById('localStream').appendChild(video);
                 localStream = mediaStream;
+                console.log('try to emit login message');
                 socket.emit(
                     'login',
                     {
@@ -39,7 +41,7 @@ loginForm.addEventListener('submit', function(event) {
             },
             function(error) {
                 console.log(error);
-                alert('Cannot use devices.');
+                alert('Cannot use a camera and/or a microphone.');
             }
         );
     }
@@ -52,11 +54,13 @@ socket.on('connect', function() {
 });
 
 socket.on('joined', function() {
+    console.log('get "joined" message');
     loginForm.style.display = 'none';
     peers.style.display = 'block';
 });
 
 socket.on('update peers', function(data) {
+    console.log('get "update peers" message');
     while (peers.hasChildNodes()) {
         peers.removeChild(peers.lastChild);
     }
@@ -80,22 +84,26 @@ function createPeerConnection(id) {
     });
     peerConnection.addStream(localStream);
     peerConnection.onicecandidate = function(event) {
+        console.log('onicecandidate');
         if (event.candidate) {
-            console.log('try to send conection candidate to peers');
-            socket.emit('signaling', {
-                event: 'icecandidate',
-                to: otherPeer,
-                from: socket.id,
-                candidate: {
-                    candidate: event.candidate.candidate,
-                    sdpMLineIndex: event.candidate.sdpMLineIndex,
-                    sdpMid: event.candidate.sdpMid
+            console.log('try to send conection candidate to the peer');
+            socket.emit(
+                'signaling',
+                {
+                    event: 'icecandidate',
+                    to: otherPeer,
+                    from: socket.id,
+                    candidate: {
+                        candidate: event.candidate.candidate,
+                        sdpMLineIndex: event.candidate.sdpMLineIndex,
+                        sdpMid: event.candidate.sdpMid
+                    }
                 }
-            });
+            );
         }
     };
     peerConnection.onaddstream = function(event) {
-        console.log('try to show peers\' video stream');
+        console.log('try to show peer\'s video stream');
         var video = document.createElement('video');
         video.src = window.URL.createObjectURL(event.stream);
         video.autoplay = true;
@@ -117,12 +125,15 @@ peers.addEventListener('click', function(event) {
                 new RTCSessionDescription(description),
                 function() {
                     console.log('try to send offer SDP to a peer to talk with');
-                    socket.emit('signaling', {
-                        event: 'offer',
-                        from: socket.id,
-                        to: otherPeer,
-                        description: description
-                    });
+                    socket.emit(
+                        'signaling',
+                        {
+                            event: 'offer',
+                            from: socket.id,
+                            to: otherPeer,
+                            description: description
+                        }
+                    );
                 },
                 function(error) {
                     console.log(error);
@@ -136,6 +147,7 @@ peers.addEventListener('click', function(event) {
 });
 
 socket.on('signaling', function(data) {
+    console.log('get "signaling:' + data.event + '"');
     var func = signalingEvents[data.event];
     if (!!func &&  (data.event == 'offer' || data.from == otherPeer)) {
         func(data);
@@ -167,12 +179,15 @@ var signalingEvents = {
                             new RTCSessionDescription(description),
                             function() {
                                 console.log('try to send answer SDP to the caller');
-                                socket.emit('signaling', {
-                                    event: 'answer',
-                                    from: socket.id,
-                                    to: otherPeer,
-                                    description: description
-                                });
+                                socket.emit(
+                                    'signaling',
+                                    {
+                                        event: 'answer',
+                                        from: socket.id,
+                                        to: otherPeer,
+                                        description: description
+                                    }
+                                );
                             },
                             function(error) {
                                 console.log(error);
@@ -220,10 +235,13 @@ function bye() {
 }
 
 document.getElementById('bye').addEventListener('click', function() {
-    socket.emit('signaling', {
-        event: 'bye',
-        to: otherPeer,
-        from: socket.id
-    });
+    socket.emit(
+        'signaling',
+        {
+            event: 'bye',
+            to: otherPeer,
+            from: socket.id
+        }
+    );
     bye();
 });
